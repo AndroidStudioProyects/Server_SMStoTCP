@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.SmsMessage;
@@ -19,14 +18,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -34,8 +25,6 @@ public class MainActivity extends ActionBarActivity {
     TextView textMensajes;
     EditText edit_IP,edit_Puert;
     Button button;
-    ClienteTask hilo;
-    Socket socket;
     String IP;
     int Port;
     BroadcastReceiver Broad;
@@ -80,8 +69,7 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hilo=new ClienteTask();
-                hilo.execute();
+
                 button.setEnabled(true);
             }
         });
@@ -104,7 +92,6 @@ public class MainActivity extends ActionBarActivity {
                     textMensajes.setEnabled(false);
                     textMensajes.append("Servidor Desactivado \n");
 
-                    hilo.cancel(true);
                  //   button.setEnabled(true);
 
                 }
@@ -112,67 +99,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public class ClienteTask extends AsyncTask<String,Void,String>{
-
-        Boolean control=true;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            control=true;
-            Toast.makeText(getApplicationContext(), "onPreExecute", Toast.LENGTH_SHORT).show();
-
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String result = null;
-            try {
-                //Create a client socket and define internet address and the port of the server
-                socket = new Socket("192.168.0.103",9001);
-                //Get the input stream of the client socket
-                InputStream is = socket.getInputStream();
-                //Get the output stream of the client socket
-                PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-                //Write data to the output stream of the client socket
-                out.println(params[0]);
-                //Buffer the data coming from the input stream
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(is));
-                //Read data in the input buffer
-                result = br.readLine();
-                //Close the client socket
-                socket.close();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-
-        protected void onProgressUpdate(String values) {
-            Toast.makeText(getApplicationContext(), "onProgressUpdate", Toast.LENGTH_SHORT).show();
-
-        }
-
-        @Override
-        protected void onPostExecute(String o) {
-            Toast.makeText(getApplicationContext(), "onPostExecute", Toast.LENGTH_SHORT).show();
-            textMensajes.append("\n" + o);
-        }
-
-        @Override
-        protected void onCancelled(String o) {
-            Toast.makeText(getApplicationContext(), "onCancelled", Toast.LENGTH_SHORT).show();
-            control=false;
-        }
-    }
-
-    private void BROADCAST() {
+     private void BROADCAST() {
 
 
         Broad=new BroadcastReceiver()   {
@@ -190,13 +117,14 @@ public class MainActivity extends ActionBarActivity {
                         for(int i = 0; i < pdusObj.length; i++){
                             SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
                             String phoneNumber = currentMessage.getDisplayOriginatingAddress();
-
-                            String senderNum = phoneNumber;
+                             String senderNum = phoneNumber;
                             String message = currentMessage.getDisplayMessageBody();
-                            Toast.makeText(context, "Radiobase: " + senderNum + " Mensaje: " + message, Toast.LENGTH_SHORT).show();
-                            hilo=new ClienteTask();
-                            hilo.execute("Radiobase: " + senderNum + " Alarma: " + message);
-                            textMensajes.append("Radiobase:" + senderNum + " Mensaje: " + message+"\n");
+                            Toast.makeText(context, "llego Radiobase: " + senderNum + " Mensaje: " + message, Toast.LENGTH_SHORT).show();
+                          String ip=edit_IP.getText().toString();
+                            int puerto=Integer.parseInt(edit_Puert.getText().toString());
+                            ConexionIP cliente=new ConexionIP(ip,puerto,message);
+                            cliente.start();
+                            textMensajes.append("Radio:" + senderNum + " msg: " + message+"\n");
                         }
                     }
                 } catch (Exception e) {

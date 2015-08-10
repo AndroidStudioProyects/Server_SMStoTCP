@@ -41,7 +41,7 @@ public class MainActivity extends ActionBarActivity {
         
     }
 
-
+// algunos cambios
 
     private void XML() {
         switch_Server= (Switch) findViewById(R.id.switch_Server);
@@ -135,6 +135,8 @@ public class MainActivity extends ActionBarActivity {
 
 
 }
+
+    /// agregado
 
     @Override
     protected void onResume() {

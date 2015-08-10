@@ -83,6 +83,8 @@ public class MainActivity extends ActionBarActivity {
                     registerReceiver(Broad, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));//POWER_CONNECTED
                     textMensajes.setEnabled(true);
                     textMensajes.append("Servidor Activado \n");
+                    edit_Puert.setEnabled(false);
+                    edit_IP.setEnabled(false);
 
 
                 } else {
@@ -91,7 +93,8 @@ public class MainActivity extends ActionBarActivity {
                     unregisterReceiver(Broad);// de apaga el broadcastReceiver
                     textMensajes.setEnabled(false);
                     textMensajes.append("Servidor Desactivado \n");
-
+                    edit_Puert.setEnabled(true);
+                    edit_IP.setEnabled(true);
                  //   button.setEnabled(true);
 
                 }

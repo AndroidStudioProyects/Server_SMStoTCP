@@ -41,12 +41,6 @@ public class MainActivity extends ActionBarActivity {
         
     }
 
-    private void ClienteTCP() {
-
-
-
-
-    }
 
 
     private void XML() {
